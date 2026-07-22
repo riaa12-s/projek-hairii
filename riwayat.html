@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riwayat - iniKAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;min-height:100vh;background:#f4f6f9;}
+.sidebar{width:250px;background:#0b2d5c;color:white;padding:20px;}
+.sidebar h2{font-size:18px;margin-bottom:25px;text-align:center;}
+.menu{list-style:none;} .menu li{margin-bottom:10px;}
+.menu a{display:block;color:#cfd8dc;text-decoration:none;padding:12px 15px;border-radius:8px;font-size:13px;}
+.menu a:hover, .menu a.active{background:#164b97;color:white;font-weight:600;}
+.content{flex:1;padding:30px;}
+.box{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-bottom:25px;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+table, th, td{border:1px solid #eee;padding:10px;text-align:left;font-size:13px;}
+th{background:#0b2d5c;color:white;}
+.badge-masuk{background:#e8f5e9;color:#2e7d32;padding:3px 6px;border-radius:4px;font-weight:bold;font-size:11px;}
+.badge-keluar{background:#ffebee;color:#c62828;padding:3px 6px;border-radius:4px;font-weight:bold;font-size:11px;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2 id="sideNamaPT">PT HAIRII</h2>
+  <ul class="menu">
+    <li><a href="dashboard.html">📊 Dashboard</a></li>
+    <li><a href="transaksi.html">💸 Transaksi</a></li>
+    <li><a href="dokumen.html">📄 Dokumen</a></li>
+    <li><a href="dataakun.html">👥 Data Akun</a></li>
+    <li><a href="riwayat.html" class="active">📜 Riwayat</a></li>
+    <li><a href="pengaturan.html">⚙️ Pengaturan</a></li>
+  </ul>
+</div>
+
+<div class="content">
+  <div class="box">
+    <h3 style="color:#0b2d5c;">📜 Riwayat Keseluruhan Transaksi Kas</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th>
+        </tr>
+      </thead>
+      <tbody id="tabelRKas"></tbody>
+    </table>
+  </div>
+
+  <div class="box">
+    <h3 style="color:#0b2d5c;">📜 Riwayat Pengunggahan Dokumen</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal Upload</th><th>Kategori</th><th>Keterangan</th><th>Nama File</th>
+        </tr>
+      </thead>
+      <tbody id="tabelRDoc"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
+document.getElementById("sideNamaPT").innerText = localStorage.getItem("namaPT") || "PT HAIRII";
+
+// TAMPILKAN KAS
+let dataKas = JSON.parse(localStorage.getItem("dataKasPT")) || [];
+const tbKas = document.getElementById("tabelRKas");
+dataKas.forEach(item => {
+  tbKas.innerHTML += `
+    <tr>
+      <td>${item.tgl}</td>
+      <td><b>${item.ket}</b></td>
+      <td><span class="${item.jenis === 'masuk' ? 'badge-masuk' : 'badge-keluar'}">${item.jenis.toUpperCase()}</span></td>
+      <td>Rp ${Number(item.jumlah).toLocaleString("id-ID")}</td>
+    </tr>`;
+});
+
+// TAMPILKAN DOKUMEN
+let dataDoc = JSON.parse(localStorage.getItem("dataDokumenPT")) || [];
+const tbDoc = document.getElementById("tabelRDoc");
+dataDoc.forEach(item => {
+  tbDoc.innerHTML += `
+    <tr>
+      <td>${item.tgl}</td>
+      <td><b>${item.kat}</b></td>
+      <td>${item.ket}</td>
+      <td>${item.namaFile}</td>
+    </tr>`;
+});
+</script>
+</body>
+</html>

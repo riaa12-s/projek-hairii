@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transaksi - iniKAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;min-height:100vh;background:#f4f6f9;}
+.sidebar{width:250px;background:#0b2d5c;color:white;padding:20px;}
+.sidebar h2{font-size:18px;margin-bottom:25px;text-align:center;}
+.menu{list-style:none;} .menu li{margin-bottom:10px;}
+.menu a{display:block;color:#cfd8dc;text-decoration:none;padding:12px 15px;border-radius:8px;font-size:13px;}
+.menu a:hover, .menu a.active{background:#164b97;color:white;font-weight:600;}
+.content{flex:1;padding:30px;}
+.box{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-bottom:20px;}
+.form-grid{display:grid;grid-template-columns:1fr 2fr 1fr 1fr auto;gap:10px;align-items:end;}
+.form-group label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;}
+.form-group input, .form-group select{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;outline:none;}
+.btn-simpan{background:#0b2d5c;color:white;border:none;padding:10px 15px;border-radius:6px;font-weight:bold;cursor:pointer;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+table, th, td{border:1px solid #eee;padding:10px;text-align:left;font-size:13px;}
+th{background:#0b2d5c;color:white;}
+.badge-masuk{background:#e8f5e9;color:#2e7d32;padding:3px 6px;border-radius:4px;font-weight:bold;font-size:11px;}
+.badge-keluar{background:#ffebee;color:#c62828;padding:3px 6px;border-radius:4px;font-weight:bold;font-size:11px;}
+.btn-hapus{background:#e63946;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px;}
+.pemberitahuan{background:#fff3cd;color:#856404;padding:10px;border-radius:6px;margin-bottom:15px;font-size:12px;display:none;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2 id="sideNamaPT">PT HAIRII</h2>
+  <ul class="menu">
+    <li><a href="dashboard.html">📊 Dashboard</a></li>
+    <li><a href="transaksi.html" class="active">💸 Transaksi</a></li>
+    <li><a href="dokumen.html">📄 Dokumen</a></li>
+    <li><a href="dataakun.html">👥 Data Akun</a></li>
+    <li><a href="riwayat.html">📜 Riwayat</a></li>
+    <li><a href="pengaturan.html">⚙️ Pengaturan</a></li>
+  </ul>
+</div>
+
+<div class="content">
+  <div id="notifAkses" class="pemberitahuan">⚠️ Status Akun: <b><span id="roleLabel"></span></b>. Anda hanya memiliki akses untuk **Melihat Data** (Tidak dapat menambah/menghapus transaksi).</div>
+
+  <div class="box" id="boxInputForm">
+    <h3 style="margin-bottom:15px;color:#0b2d5c;">✍️ Input Transaksi Kas</h3>
+    <form id="formKas" class="form-grid">
+      <div class="form-group"><label>Tanggal</label><input type="date" id="tgl" required></div>
+      <div class="form-group"><label>Keterangan</label><input type="text" id="ket" placeholder="Contoh: Penjualan Produk" required></div>
+      <div class="form-group">
+        <label>Jenis Kas</label>
+        <select id="jenis"><option value="masuk">Kas Masuk (+)</option><option value="keluar">Kas Keluar (-)</option></select>
+      </div>
+      <div class="form-group"><label>Nominal (Rp)</label><input type="number" id="jumlah" required></div>
+      <button type="submit" class="btn-simpan">+ Simpan</button>
+    </form>
+  </div>
+
+  <div class="box">
+    <h3 style="color:#0b2d5c;">📋 Daftar Transaksi Kas</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>No</th><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th><th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tabelKasBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
+document.getElementById("sideNamaPT").innerText = localStorage.getItem("namaPT") || "PT HAIRII";
+
+const role = localStorage.getItem("roleAktif");
+if (role === "Manajer" || role === "Pemilik") {
+  document.getElementById("boxInputForm").style.display = "none";
+  document.getElementById("notifAkses").style.display = "block";
+  document.getElementById("roleLabel").innerText = role;
+}
+
+let dataKas = JSON.parse(localStorage.getItem("dataKasPT")) || [];
+
+function render() {
+  const tbody = document.getElementById("tabelKasBody");
+  tbody.innerHTML = "";
+  dataKas.forEach((item, index) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${item.tgl}</td>
+      <td><b>${item.ket}</b></td>
+      <td><span class="${item.jenis === 'masuk' ? 'badge-masuk' : 'badge-keluar'}">${item.jenis.toUpperCase()}</span></td>
+      <td>Rp ${Number(item.jumlah).toLocaleString("id-ID")}</td>
+      <td>${(role === "Admin" || role === "Kasir") ? `<button class="btn-hapus" onclick="hapus(${index})">Hapus</button>` : '-'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  localStorage.setItem("dataKasPT", JSON.stringify(dataKas));
+}
+
+document.getElementById("formKas").addEventListener("submit", function(e) {
+  e.preventDefault();
+  dataKas.push({
+    tgl: document.getElementById("tgl").value,
+    ket: document.getElementById("ket").value,
+    jenis: document.getElementById("jenis").value,
+    jumlah: document.getElementById("jumlah").value
+  });
+  render();
+  document.getElementById("ket").value = "";
+  document.getElementById("jumlah").value = "";
+});
+
+function hapus(i) {
+  if (confirm("Hapus transaksi ini?")) {
+    dataKas.splice(i, 1);
+    render();
+  }
+}
+
+document.getElementById("tgl").valueAsDate = new Date();
+render();
+</script>
+</body>
+</html>

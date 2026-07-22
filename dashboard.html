@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - iniKAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;min-height:100vh;background:#f4f6f9;}
+.sidebar{width:250px;background:#0b2d5c;color:white;padding:20px;display:flex;flex-direction:column;justify-content:space-between;}
+.sidebar h2{font-size:18px;margin-bottom:25px;text-align:center;}
+.menu{list-style:none;} .menu li{margin-bottom:10px;}
+.menu a{display:block;color:#cfd8dc;text-decoration:none;padding:12px 15px;border-radius:8px;font-size:13px;}
+.menu a:hover, .menu a.active{background:#164b97;color:white;font-weight:600;}
+.logout-btn{background:#e63946;color:white;border:none;padding:10px;width:100%;border-radius:8px;cursor:pointer;font-weight:bold;}
+.content{flex:1;padding:30px;}
+.header-box{display:flex;justify-content:space-between;align-items:center;background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-bottom:20px;}
+.cards{display:grid;grid-template-columns:repeat(3, 1fr);gap:15px;margin-bottom:20px;}
+.card{background:white;padding:20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.card h4{font-size:12px;color:#666;margin-bottom:5px;}
+.card p{font-size:20px;font-weight:bold;}
+.box{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-bottom:20px;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+table, th, td{border:1px solid #eee;padding:10px;text-align:left;font-size:13px;}
+th{background:#0b2d5c;color:white;}
+.badge-masuk{background:#e8f5e9;color:#2e7d32;padding:3px 6px;border-radius:4px;font-weight:bold;font-size:11px;}
+.badge-keluar{background:#ffebee;color:#c62828;padding:3px 6px;border-radius:4px;font-weight:bold;font-size:11px;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div>
+    <h2 id="sideNamaPT">PT HAIRII</h2>
+    <ul class="menu">
+      <li><a href="dashboard.html" class="active">📊 Dashboard</a></li>
+      <li><a href="transaksi.html">💸 Transaksi</a></li>
+      <li><a href="dokumen.html">📄 Dokumen</a></li>
+      <li><a href="dataakun.html">👥 Data Akun</a></li>
+      <li><a href="riwayat.html">📜 Riwayat</a></li>
+      <li><a href="pengaturan.html">⚙️ Pengaturan</a></li>
+    </ul>
+  </div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="content">
+  <div class="header-box">
+    <h2>Dashboard Ringkasan</h2>
+    <div>User: <b id="dispUser">-</b> (<span id="dispRole" style="color:#0b2d5c;font-weight:bold;">-</span>)</div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h4>Total Kas Masuk</h4>
+      <p id="totalMasukText" style="color:#2e7d32;">Rp 0</p>
+    </div>
+    <div class="card">
+      <h4>Total Kas Keluar</h4>
+      <p id="totalKeluarText" style="color:#c62828;">Rp 0</p>
+    </div>
+    <div class="card">
+      <h4>Sisa Saldo Kas</h4>
+      <p id="sisaSaldoText" style="color:#0b2d5c;">Rp 0</p>
+    </div>
+  </div>
+
+  <div class="box">
+    <h3 style="margin-bottom:15px;color:#0b2d5c;">📈 Grafik Arus Kas Real-Time</h3>
+    <canvas id="chartKas" height="90"></canvas>
+  </div>
+
+  <div class="box">
+    <h3 style="color:#0b2d5c;">📋 5 Transaksi Terakhir</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Keterangan</th>
+          <th>Jenis</th>
+          <th>Nominal</th>
+        </tr>
+      </thead>
+      <tbody id="tabelDash"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
+document.getElementById("dispUser").innerText = localStorage.getItem("userAktif");
+document.getElementById("dispRole").innerText = localStorage.getItem("roleAktif");
+document.getElementById("sideNamaPT").innerText = localStorage.getItem("namaPT") || "PT HAIRII";
+
+function logout() {
+  localStorage.removeItem("isLoggedIn");
+  window.location.href = "login.html";
+}
+
+// BACA DATA DARI LOCALSTORAGE
+let kas = JSON.parse(localStorage.getItem("dataKasPT")) || [];
+let tMasuk = 0, tKeluar = 0;
+const tbody = document.getElementById("tabelDash");
+
+kas.slice(-5).reverse().forEach(item => {
+  if (item.jenis === "masuk") tMasuk += Number(item.jumlah);
+  else tKeluar += Number(item.jumlah);
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${item.tgl}</td>
+    <td><b>${item.ket}</b></td>
+    <td><span class="${item.jenis === 'masuk' ? 'badge-masuk' : 'badge-keluar'}">${item.jenis.toUpperCase()}</span></td>
+    <td>Rp ${Number(item.jumlah).toLocaleString("id-ID")}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// HITUNG KESELURUHAN TOTAL
+tMasuk = 0; tKeluar = 0;
+kas.forEach(item => {
+  if (item.jenis === "masuk") tMasuk += Number(item.jumlah);
+  else tKeluar += Number(item.jumlah);
+});
+
+document.getElementById("totalMasukText").innerText = "Rp " + tMasuk.toLocaleString("id-ID");
+document.getElementById("totalKeluarText").innerText = "Rp " + tKeluar.toLocaleString("id-ID");
+document.getElementById("sisaSaldoText").innerText = "Rp " + (tMasuk - tKeluar).toLocaleString("id-ID");
+
+// BIKIN GRAFIK AUTOMATIS
+new Chart(document.getElementById('chartKas'), {
+  type: 'bar',
+  data: {
+    labels: ['Kas Masuk', 'Kas Keluar'],
+    datasets: [{
+      label: 'Jumlah (Rp)',
+      data: [tMasuk, tKeluar],
+      backgroundColor: ['#2e7d32', '#c62828']
+    }]
+  }
+});
+</script>
+</body>
+</html>

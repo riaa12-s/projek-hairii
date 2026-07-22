@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Akun - iniKAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;min-height:100vh;background:#f0f4f9;}
+.sidebar{width:260px;background:#0b2d5c;color:white;padding:25px 20px;display:flex;flex-direction:column;justify-content:space-between;}
+.sidebar h2{font-size:20px;margin-bottom:30px;text-align:center;letter-spacing:1px;font-weight:700;}
+.menu{list-style:none;} .menu li{margin-bottom:12px;}
+.menu a{display:flex;align-items:center;gap:10px;color:#cfd8dc;text-decoration:none;padding:12px 18px;border-radius:10px;font-size:14px;transition:all .3s;}
+.menu a:hover, .menu a.active{background:#164b97;color:white;font-weight:600;box-shadow:0 4px 12px rgba(22,75,151,0.3);}
+
+.content{flex:1;padding:35px;overflow-y:auto;}
+.header-title{margin-bottom:25px;}
+.header-title h2{color:#0b2d5c;font-size:24px;font-weight:700;}
+.header-title p{color:#666;font-size:13px;}
+
+.box-card{background:white;padding:25px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.04);margin-bottom:25px;}
+.table-responsive{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th{background:#f8fafc;color:#0b2d5c;text-align:left;padding:14px;font-size:13px;font-weight:600;border-bottom:2px solid #e2e8f0;}
+td{padding:14px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#334155;vertical-align:middle;}
+tr:hover{background:#f8fafc;}
+
+.badge-role{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;}
+.role-admin{background:#e0f2fe;color:#0369a1;}
+.role-kasir{background:#fef3c7;color:#b45309;}
+.role-manajer{background:#dcfce7;color:#15803d;}
+.role-pemilik{background:#f3e8ff;color:#7e22ce;}
+
+.btn-action{padding:8px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .2s;}
+.btn-edit{background:#0b2d5c;color:white;}
+.btn-edit:hover{background:#164b97;box-shadow:0 4px 10px rgba(11,45,92,0.2);}
+
+/* MODAL STYLING */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:999;}
+.modal-card{background:white;width:100%;max-width:480px;padding:30px;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,0.2);animation:popup .3s ease;}
+@keyframes popup{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-card h3{color:#0b2d5c;margin-bottom:20px;font-size:18px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:6px;}
+.form-group input{width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;outline:none;font-size:13px;}
+.form-group input:focus{border-color:#0b2d5c;box-shadow:0 0 0 3px rgba(11,45,92,0.1);}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:25px;}
+.btn-cancel{background:#e2e8f0;color:#475569;}
+.btn-save{background:#0b2d5c;color:white;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div>
+    <h2 id="sideNamaPT">PT.HAIRII</h2>
+    <ul class="menu">
+      <li><a href="dashboard.html">📊 Dashboard</a></li>
+      <li><a href="transaksi.html">💸 Transaksi</a></li>
+      <li><a href="dokumen.html">📄 Dokumen</a></li>
+      <li><a href="dataakun.html" class="active">👥 Data Akun</a></li>
+      <li><a href="riwayat.html">📜 Riwayat</a></li>
+      <li><a href="pengaturan.html">⚙️ Pengaturan</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="content">
+  <div class="header-title">
+    <h2>👥 Manajemen Data Akun</h2>
+    <p>Kelola data profil, username, dan kata sandi pengguna sistem iniKAS.</p>
+  </div>
+
+  <div class="box-card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama Lengkap</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Jabatan / Role</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tabelUsers"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT AKUN -->
+<div class="modal-overlay" id="modalEdit">
+  <div class="modal-card">
+    <h3>✏️ Edit Data Akun</h3>
+    <form id="formEditUser">
+      <input type="hidden" id="editIndex">
+      <div class="form-group">
+        <label>Role / Jabatan</label>
+        <input type="text" id="editRole" disabled style="background:#f1f5f9;font-weight:600;color:#64748b;">
+      </div>
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="editNama" required>
+      </div>
+      <div class="form-group">
+        <label>Username Baru</label>
+        <input type="text" id="editUsername" required>
+      </div>
+      <div class="form-group">
+        <label>Password Baru</label>
+        <input type="text" id="editPassword" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-action btn-cancel" onclick="closeModal()">Batal</button>
+        <button type="submit" class="btn-action btn-save">💾 Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
+
+// Ambil Config Perusahaan
+const configPT = JSON.parse(localStorage.getItem("configPT")) || { namaPT: "PT.HAIRII" };
+document.getElementById("sideNamaPT").innerText = configPT.namaPT;
+
+let users = JSON.parse(localStorage.getItem("dataUsersPT")) || [
+  { username: "admin", password: "123", nama: "Administrator", role: "Admin" },
+  { username: "kasir", password: "123", nama: "Kasir Utami", role: "Kasir" },
+  { username: "manajer", password: "123", nama: "Bpk. Hendra", role: "Manajer" },
+  { username: "pemilik", password: "123", nama: "Ibu Hairii", role: "Pemilik" }
+];
+
+function getRoleBadge(role) {
+  const r = role.toLowerCase();
+  return `<span class="badge-role role-${r}">${role}</span>`;
+}
+
+function renderTable() {
+  const tbody = document.getElementById("tabelUsers");
+  tbody.innerHTML = "";
+  
+  users.forEach((u, i) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td><b>${u.nama}</b></td>
+        <td><code>${u.username}</code></td>
+        <td><code>••••••••</code></td>
+        <td>${getRoleBadge(u.role)}</td>
+        <td>
+          <button class="btn-action btn-edit" onclick="openModal(${i})">✏️ Edit Data</button>
+        </td>
+      </tr>`;
+  });
+}
+
+function openModal(index) {
+  const user = users[index];
+  document.getElementById("editIndex").value = index;
+  document.getElementById("editRole").value = user.role;
+  document.getElementById("editNama").value = user.nama;
+  document.getElementById("editUsername").value = user.username;
+  document.getElementById("editPassword").value = user.password;
+  document.getElementById("modalEdit").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modalEdit").style.display = "none";
+}
+
+document.getElementById("formEditUser").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const idx = document.getElementById("editIndex").value;
+  
+  users[idx].nama = document.getElementById("editNama").value;
+  users[idx].username = document.getElementById("editUsername").value;
+  users[idx].password = document.getElementById("editPassword").value;
+
+  // Simpan ke storage
+  localStorage.setItem("dataUsersPT", JSON.stringify(users));
+  
+  alert("✅ Data akun " + users[idx].role + " berhasil diperbarui!");
+  closeModal();
+  renderTable();
+});
+
+renderTable();
+</script>
+</body>
+</html>

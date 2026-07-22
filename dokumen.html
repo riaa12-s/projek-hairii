@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dokumen - iniKAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;min-height:100vh;background:#f4f6f9;}
+.sidebar{width:250px;background:#0b2d5c;color:white;padding:20px;}
+.sidebar h2{font-size:18px;margin-bottom:25px;text-align:center;}
+.menu{list-style:none;} .menu li{margin-bottom:10px;}
+.menu a{display:block;color:#cfd8dc;text-decoration:none;padding:12px 15px;border-radius:8px;font-size:13px;}
+.menu a:hover, .menu a.active{background:#164b97;color:white;font-weight:600;}
+.content{flex:1;padding:30px;}
+.box{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-bottom:20px;}
+.form-grid{display:grid;grid-template-columns:1fr 2fr 1.5fr auto;gap:10px;align-items:end;}
+.form-group label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;}
+.form-group input, .form-group select{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;outline:none;}
+.btn-upload{background:#0b2d5c;color:white;border:none;padding:10px 15px;border-radius:6px;font-weight:bold;cursor:pointer;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+table, th, td{border:1px solid #eee;padding:10px;text-align:left;font-size:13px;}
+th{background:#0b2d5c;color:white;}
+.btn-download{background:#2ec4b6;color:white;padding:4px 8px;border-radius:4px;text-decoration:none;font-size:11px;font-weight:bold;}
+.btn-hapus{background:#e63946;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px;}
+.pemberitahuan{background:#fff3cd;color:#856404;padding:10px;border-radius:6px;margin-bottom:15px;font-size:12px;display:none;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2 id="sideNamaPT">PT HAIRII</h2>
+  <ul class="menu">
+    <li><a href="dashboard.html">📊 Dashboard</a></li>
+    <li><a href="transaksi.html">💸 Transaksi</a></li>
+    <li><a href="dokumen.html" class="active">📄 Dokumen</a></li>
+    <li><a href="dataakun.html">👥 Data Akun</a></li>
+    <li><a href="riwayat.html">📜 Riwayat</a></li>
+    <li><a href="pengaturan.html">⚙️ Pengaturan</a></li>
+  </ul>
+</div>
+
+<div class="content">
+  <div id="notifAkses" class="pemberitahuan">⚠️ Status Akun: <b><span id="roleLabel"></span></b>. Anda hanya dapat **Melihat & Mengunduh Dokumen** (Tidak dapat mengunggah).</div>
+
+  <div class="box" id="boxUploadForm">
+    <h3 style="margin-bottom:15px;color:#0b2d5c;">📤 Unggah Dokumen / Nota Baru</h3>
+    <form id="formDoc" class="form-grid">
+      <div class="form-group">
+        <label>Kategori</label>
+        <select id="kat"><option value="Kwitansi">Kwitansi/Nota</option><option value="Invoice">Invoice</option><option value="Lainnya">Lainnya</option></select>
+      </div>
+      <div class="form-group"><label>Keterangan Dokumen</label><input type="text" id="ketDoc" required></div>
+      <div class="form-group"><label>Pilih File</label><input type="file" id="fileInp" required></div>
+      <button type="submit" class="btn-upload">+ Upload</button>
+    </form>
+  </div>
+
+  <div class="box">
+    <h3 style="color:#0b2d5c;">📁 Arsip Dokumen Terunggah</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>No</th><th>Tanggal</th><th>Kategori</th><th>Keterangan</th><th>Nama Berkas</th><th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tabelDocBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
+document.getElementById("sideNamaPT").innerText = localStorage.getItem("namaPT") || "PT HAIRII";
+
+const role = localStorage.getItem("roleAktif");
+if (role !== "Admin") {
+  document.getElementById("boxUploadForm").style.display = "none";
+  document.getElementById("notifAkses").style.display = "block";
+  document.getElementById("roleLabel").innerText = role;
+}
+
+let dataDoc = JSON.parse(localStorage.getItem("dataDokumenPT")) || [];
+
+function render() {
+  const tbody = document.getElementById("tabelDocBody");
+  tbody.innerHTML = "";
+  dataDoc.forEach((item, index) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${item.tgl}</td>
+      <td><b>${item.kat}</b></td>
+      <td>${item.ket}</td>
+      <td>${item.namaFile}</td>
+      <td>
+        <a href="${item.fileData}" download="${item.namaFile}" class="btn-download">Unduh</a>
+        ${role === 'Admin' ? `<button class="btn-hapus" onclick="hapusDoc(${index})">Hapus</button>` : ''}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  localStorage.setItem("dataDokumenPT", JSON.stringify(dataDoc));
+}
+
+document.getElementById("formDoc").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const file = document.getElementById("fileInp").files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(evt) {
+    dataDoc.push({
+      tgl: new Date().toISOString().split('T')[0],
+      kat: document.getElementById("kat").value,
+      ket: document.getElementById("ketDoc").value,
+      namaFile: file.name,
+      fileData: evt.target.result
+    });
+    render();
+    document.getElementById("ketDoc").value = "";
+    document.getElementById("fileInp").value = "";
+  };
+  reader.readAsDataURL(file);
+});
+
+function hapusDoc(i) {
+  if (confirm("Hapus dokumen dari arsip?")) {
+    dataDoc.splice(i, 1);
+    render();
+  }
+}
+
+render();
+</script>
+</body>
+</html>

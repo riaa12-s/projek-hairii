@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pengaturan - iniKAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;min-height:100vh;background:#f0f4f9;}
+.sidebar{width:260px;background:#0b2d5c;color:white;padding:25px 20px;display:flex;flex-direction:column;justify-content:space-between;}
+.sidebar h2{font-size:20px;margin-bottom:30px;text-align:center;letter-spacing:1px;font-weight:700;}
+.menu{list-style:none;} .menu li{margin-bottom:12px;}
+.menu a{display:flex;align-items:center;gap:10px;color:#cfd8dc;text-decoration:none;padding:12px 18px;border-radius:10px;font-size:14px;transition:all .3s;}
+.menu a:hover, .menu a.active{background:#164b97;color:white;font-weight:600;box-shadow:0 4px 12px rgba(22,75,151,0.3);}
+
+.content{flex:1;padding:35px;overflow-y:auto;}
+.header-title{margin-bottom:25px;}
+.header-title h2{color:#0b2d5c;font-size:24px;font-weight:700;}
+.header-title p{color:#666;font-size:13px;}
+
+.grid-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:25px;}
+.card{background:white;padding:30px;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,0.04);}
+.card-header{border-bottom:1px solid #f1f5f9;padding-bottom:15px;margin-bottom:20px;}
+.card-header h3{color:#0b2d5c;font-size:17px;font-weight:700;}
+
+/* BRAND DISPLAY CARD */
+.brand-preview{background:linear-gradient(135deg, #0b2d5c 0%, #164b97 100%);color:white;padding:25px;border-radius:14px;margin-bottom:20px;}
+.brand-preview h1{font-size:28px;font-weight:800;margin-bottom:5px;letter-spacing:0.5px;}
+.brand-preview p{font-size:12px;opacity:0.8;}
+
+.info-list{display:flex;flex-direction:column;gap:15px;}
+.info-item{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:10px;background:#f8fafc;}
+.info-icon{font-size:18px;background:white;padding:8px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+.info-detail label{display:block;font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;}
+.info-detail span{font-size:14px;color:#0f172a;font-weight:600;}
+
+/* FORM STYLING */
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:6px;}
+.form-group input, .form-group textarea{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;outline:none;font-size:13px;transition:all .2s;}
+.form-group input:focus, .form-group textarea:focus{border-color:#0b2d5c;box-shadow:0 0 0 3px rgba(11,45,92,0.1);}
+
+.btn-submit{background:#0b2d5c;color:white;border:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;width:100%;transition:all .3s;}
+.btn-submit:hover{background:#164b97;box-shadow:0 6px 15px rgba(22,75,151,0.25);}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div>
+    <h2 id="sideNamaPT">PT.HAIRII</h2>
+    <ul class="menu">
+      <li><a href="dashboard.html">📊 Dashboard</a></li>
+      <li><a href="transaksi.html">💸 Transaksi</a></li>
+      <li><a href="dokumen.html">📄 Dokumen</a></li>
+      <li><a href="dataakun.html">👥 Data Akun</a></li>
+      <li><a href="riwayat.html">📜 Riwayat</a></li>
+      <li><a href="pengaturan.html" class="active">⚙️ Pengaturan</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="content">
+  <div class="header-title">
+    <h2>⚙️ Pengaturan Perusahaan</h2>
+    <p>Kelola identitas resmi PT dan konfigurasi sistem aplikasi iniKAS.</p>
+  </div>
+
+  <div class="grid-layout">
+    <!-- PRATINJAU IDENTITAS -->
+    <div class="card">
+      <div class="brand-preview">
+        <p>Aplikasi Kas Resmi</p>
+        <h1 id="viewApk">iniKAS</h1>
+        <p id="viewPT">PT.HAIRII</p>
+      </div>
+
+      <div class="info-list">
+        <div class="info-item">
+          <div class="info-icon">🏢</div>
+          <div class="info-detail">
+            <label>Nama Perusahaan</label>
+            <span id="dispPT">PT.HAIRII</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">📍</div>
+          <div class="info-detail">
+            <label>Alamat Lengkap</label>
+            <span id="dispAlamat">Jl. Nin ajadulu no.51</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">✉️</div>
+          <div class="info-detail">
+            <label>Email Resmi</label>
+            <span id="dispEmail">kasinaja@gmail.com</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM EDIT IDENTITAS -->
+    <div class="card">
+      <div class="card-header">
+        <h3>✏️ Edit Data Identitas PT</h3>
+      </div>
+      <form id="formPengaturan">
+        <div class="form-group">
+          <label>Nama Aplikasi</label>
+          <input type="text" id="inpApk" required>
+        </div>
+        <div class="form-group">
+          <label>Nama PT / Perusahaan</label>
+          <input type="text" id="inpPT" required>
+        </div>
+        <div class="form-group">
+          <label>Alamat Perusahaan</label>
+          <textarea id="inpAlamat" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Email Perusahaan</label>
+          <input type="email" id="inpEmail" required>
+        </div>
+        <button type="submit" class="btn-submit">💾 Simpan Perubahan Pengaturan</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
+
+// BACA/SIMPAN CONFIG UTAMA DATA
+let configPT = JSON.parse(localStorage.getItem("configPT")) || {
+  namaApk: "iniKAS",
+  namaPT: "PT.HAIRII",
+  alamat: "Jl. Nin ajadulu no.51",
+  email: "kasinaja@gmail.com"
+};
+
+function renderUI() {
+  document.getElementById("sideNamaPT").innerText = configPT.namaPT;
+  document.getElementById("viewApk").innerText = configPT.namaApk;
+  document.getElementById("viewPT").innerText = configPT.namaPT;
+  
+  document.getElementById("dispPT").innerText = configPT.namaPT;
+  document.getElementById("dispAlamat").innerText = configPT.alamat;
+  document.getElementById("dispEmail").innerText = configPT.email;
+
+  // Set nilai form
+  document.getElementById("inpApk").value = configPT.namaApk;
+  document.getElementById("inpPT").value = configPT.namaPT;
+  document.getElementById("inpAlamat").value = configPT.alamat;
+  document.getElementById("inpEmail").value = configPT.email;
+}
+
+renderUI();
+
+document.getElementById("formPengaturan").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  configPT = {
+    namaApk: document.getElementById("inpApk").value,
+    namaPT: document.getElementById("inpPT").value,
+    alamat: document.getElementById("inpAlamat").value,
+    email: document.getElementById("inpEmail").value
+  };
+
+  localStorage.setItem("configPT", JSON.stringify(configPT));
+  localStorage.setItem("namaPT", configPT.namaPT); // Simpan global
+
+  alert("✨ Pengaturan identitas perusahaan berhasil diperbarui!");
+  renderUI();
+});
+</script>
+</body>
+</html>

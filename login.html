@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - iniKAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg, #0b2d5c 0%, #164b97 100%);
+  padding:20px;
+}
+.login-card{
+  background:white;
+  width:100%;
+  max-width:420px;
+  padding:35px 30px;
+  border-radius:20px;
+  box-shadow:0 15px 35px rgba(0,0,0,0.2);
+}
+.brand-header{text-align:center;margin-bottom:20px;}
+.brand-header h1{color:#0b2d5c;font-size:28px;font-weight:700;}
+.brand-header p{color:#64748b;font-size:13px;margin-top:2px;}
+
+/* KOTAK INFO AKUN DEMO UNTUK DOSEN */
+.demo-info-box{
+  background:#f0f7ff;
+  border:1px dashed #0b2d5c;
+  border-radius:12px;
+  padding:12px 15px;
+  margin-bottom:22px;
+  font-size:12px;
+}
+.demo-info-box h4{
+  color:#0b2d5c;
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:13px;
+}
+.demo-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.demo-item{
+  background:white;
+  padding:6px 8px;
+  border-radius:6px;
+  border:1px solid #e2e8f0;
+}
+.demo-item label{font-weight:700;color:#0b2d5c;display:block;font-size:11px;}
+.demo-item span{color:#475569;font-family:monospace;font-size:11px;}
+
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#334155;margin-bottom:6px;}
+.form-group input, .form-group select{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  outline:none;
+  font-size:13px;
+  transition:all .2s;
+}
+.form-group input:focus, .form-group select:focus{
+  border-color:#0b2d5c;
+  box-shadow:0 0 0 3px rgba(11,45,92,0.1);
+}
+.btn-login{
+  width:100%;
+  background:#0b2d5c;
+  color:white;
+  border:none;
+  padding:12px;
+  border-radius:10px;
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+  margin-top:10px;
+  transition:all .3s;
+}
+.btn-login:hover{
+  background:#164b97;
+  box-shadow:0 6px 15px rgba(22,75,151,0.3);
+}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="brand-header">
+    <h1 id="namaApkTitle">iniKAS</h1>
+    <p id="namaPTSub">PT.HAIRII</p>
+  </div>
+
+  <!-- KOTAK INFORMASI AKUN DEMO DOSEN -->
+  <div class="demo-info-box">
+    <h4>🔑 Akun Login (Dosen & Penguji)</h4>
+    <div class="demo-grid">
+      <div class="demo-item">
+        <label>Admin</label>
+        <span>admin / 123</span>
+      </div>
+      <div class="demo-item">
+        <label>Kasir</label>
+        <span>kasir / 123</span>
+      </div>
+      <div class="demo-item">
+        <label>Manajer</label>
+        <span>manajer / 123</span>
+      </div>
+      <div class="demo-item">
+        <label>Pemilik</label>
+        <span>pemilik / 123</span>
+      </div>
+    </div>
+  </div>
+
+  <form id="formLogin">
+    <div class="form-group">
+      <label>Jabatan / Role</label>
+      <select id="roleSelect" required>
+        <option value="Admin">Admin</option>
+        <option value="Kasir">Kasir</option>
+        <option value="Manajer">Manajer</option>
+        <option value="Pemilik">Pemilik</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Masukkan username" required>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Masukkan password" required>
+    </div>
+    <button type="submit" class="btn-login">🚀 Masuk Aplikasi</button>
+  </form>
+</div>
+
+<script>
+// Load Config Perusahaan jika ada
+const configPT = JSON.parse(localStorage.getItem("configPT")) || {
+  namaApk: "iniKAS",
+  namaPT: "PT.HAIRII"
+};
+document.getElementById("namaApkTitle").innerText = configPT.namaApk;
+document.getElementById("namaPTSub").innerText = configPT.namaPT;
+
+// Data Default Users jika belum tersimpan
+if (!localStorage.getItem("dataUsersPT")) {
+  const defaultUsers = [
+    { username: "admin", password: "123", nama: "Administrator", role: "Admin" },
+    { username: "kasir", password: "123", nama: "Kasir Utami", role: "Kasir" },
+    { username: "manajer", password: "123", nama: "Bpk. Hendra", role: "Manajer" },
+    { username: "pemilik", password: "123", nama: "Ibu Hairii", role: "Pemilik" }
+  ];
+  localStorage.setItem("dataUsersPT", JSON.stringify(defaultUsers));
+}
+
+document.getElementById("formLogin").addEventListener("submit", function(e) {
+  e.preventDefault();
+  
+  const roleInput = document.getElementById("roleSelect").value;
+  const userInput = document.getElementById("username").value;
+  const passInput = document.getElementById("password").value;
+
+  const users = JSON.parse(localStorage.getItem("dataUsersPT"));
+  
+  // Cek kecocokan user
+  const matchedUser = users.find(u => 
+    u.role.toLowerCase() === roleInput.toLowerCase() && 
+    u.username === userInput && 
+    u.password === passInput
+  );
+
+  if (matchedUser) {
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("userAktif", matchedUser.nama);
+    localStorage.setItem("roleAktif", matchedUser.role);
+    
+    alert("Login Berhasil! Selamat Datang, " + matchedUser.nama);
+    window.location.href = "dashboard.html";
+  } else {
+    alert("❌ Username atau Password salah untuk role " + roleInput + "!");
+  }
+});
+</script>
+</body>
+</html>
